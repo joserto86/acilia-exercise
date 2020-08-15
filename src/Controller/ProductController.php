@@ -18,7 +18,10 @@ class ProductController extends AbstractController
      *
      * This call takes into account all confirmed awards, but not pending or refused awards.
      *
-     * @Route("/product/featured", methods={"GET"})
+     * 
+     
+     * 
+     * @Route("/api/product/featured", methods={"GET"})
      * @SWG\Response(
      *     response=200,
      *     description="Returns the rewards of an user",

@@ -3,7 +3,7 @@
 #    controller: App\Controller\DefaultController::index
 
 products_featured:
-    path: /product/featured
+    path: /api/product/featured
     methods: GET
     controller: App\Controller\ProductController::getFeaturedProducts
 

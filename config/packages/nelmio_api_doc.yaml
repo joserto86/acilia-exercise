@@ -13,5 +13,5 @@ nelmio_api_doc:
 
     models:
         names:
-             - { alias: Category, type: App\Entity\Category}
-             - { alias: Product, type: App\Entity\Product}
+            - { alias: Category, type: App\Entity\Category}
+            - { alias: Product, type: App\Entity\Product}

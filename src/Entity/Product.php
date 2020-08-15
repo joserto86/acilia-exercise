@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Swagger\Annotations as SWG;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use App\Entity\Category;
 
 /**
@@ -22,18 +23,18 @@ class Product
     protected $id;
 
     /** 
-     * @ORM\Column(type="string", length=50) 
+     * @ORM\Column(type="string", length=255) 
      * @SWG\Property(type="string")
      * */
     protected $name;
 
-    // /** 
-    //  * @ORM\ManyToOne(targetEntity="Acilia\Entity\Category")
-    //  * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
-    //  *
-    //  * @SWG\Property(ref=@Model(type=Category::class))
-    //  */
-    // protected $category;
+    /** 
+     * @ORM\ManyToOne(targetEntity="App\Entity\Category")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     *
+     * @SWG\Property(ref=@Model(type=Category::class))
+     */
+    protected $category;
 
     /** 
      * @ORM\Column(type="float") 
@@ -53,47 +54,62 @@ class Product
      */
     protected $featured;
 
-    public function getId()
+    public function getId() :int
     {
         return $this->id;
     }
 
-    public function setName($name)
+    public function setName($name) :Product
     {
         $this->name = $name;
+        return $this;
     }
 
-    public function getName()
+    public function getName() :string
     {
         return $this->name;
     }
 
-    public function setPrice($price)
+    public function setCategory(Category $category) :Product
     {
-        $this->price = $price;
+        $this->category = $category;
+        return $this;
     }
 
-    public function getPrice()
+    public function getCategory() :Category
+    {
+        return $this->category;        
+    }
+
+    public function setPrice($price) :Product
+    {
+        $this->price = $price;
+        return $this;
+    }
+
+    public function getPrice() :float
     {
         return $this->price;
     }
 
-    public function setCurrency($currency)
+    public function setCurrency($currency) :Product
     {
         $this->currency = $currency;
+        return $this;
     }
 
-    public function getCurrency()
+    public function getCurrency() :string
     {
         return $this->currency;
     }
 
-    public function setFeatured($featured)
+    public function setFeatured($featured) :Product
     {
         $this->featured = $featured;
+        return $this;
     }
 
-    public function isFeatured()
+    public function isFeatured() :bool
     {
         return $this->featured;
     }

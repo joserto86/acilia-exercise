@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Swagger\Annotations as SWG;
 
@@ -32,27 +33,29 @@ class Category
      */
     protected $description;
 
-    public function getId()
+    public function getId() :int
     {
         return $this->id;
     }
 
-    public function setName($name)
+    public function setName($name) :Category
     {
         $this->name = $name;
+        return $this;
     }
 
-    public function getName()
+    public function getName() :string
     {
         return $this->name;
     }
 
-    public function setDescription($description)
+    public function setDescription($description) :Category
     {
         $this->description = $description;
+        return $this;
     }
 
-    public function getDescription()
+    public function getDescription() :string
     {
         return $this->description;
     }
