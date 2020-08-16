@@ -2,17 +2,11 @@
 
 namespace App\Controller;
 
-use App\Entity\Category;
 use App\Entity\Product;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use Swagger\Annotations as SWG;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\HttpFoundation\Response;
-use App\Form\CategoryType;
 use App\Form\ProductType;
 use App\Service\ProductService;
 use Exception;
@@ -29,10 +23,11 @@ class ProductController extends AbstractFOSRestController
      * Retrieves all featured Products
      * @Rest\Get("/product/featured")
      */
-    public function getFeaturedProductsAction()
+    public function getFeaturedProductsAction(Request $request) :View
     {
         try {
-            $products = $this->productService->getFeaturedProducts();
+            $currency = $request->query->get('currency');
+            $products = $this->productService->getFeaturedProducts($currency);
             return View::create($products, Response::HTTP_OK);
 
         } catch(Exception $ex) {
@@ -44,12 +39,12 @@ class ProductController extends AbstractFOSRestController
      * Retrieves a Product resource
      * @Rest\Get("/product/{id}")
      */
-    public function getProductAction(int $id)
+    public function getProductAction(int $id) :View
     {
         try {
             $product = $this->productService->getProductById($id);
             if ($product != null) {
-                return View::create($product, Response::HTTP_OK);
+                return View::create($product->serialize(), Response::HTTP_OK);
             }
 
             return View::create(null, Response::HTTP_NOT_FOUND);
@@ -63,7 +58,7 @@ class ProductController extends AbstractFOSRestController
      * Retrieves all Products
      * @Rest\Get("/product")
      */
-    public function getProductsAction()
+    public function getProductsAction() :View
     {
         try {
             $products = $this->productService->getProducts();
@@ -78,7 +73,7 @@ class ProductController extends AbstractFOSRestController
      * Create a new Category resource
      * @Rest\Post("/product")
      */
-    public function postProductAction(Request $request)
+    public function postProductAction(Request $request) :View
     {
         try {
             $product = new Product();
@@ -87,14 +82,16 @@ class ProductController extends AbstractFOSRestController
             $form->submit($data);
             if ($form->isSubmitted() && $form->isValid())
             {
-                $this->productService->saveProduct($product);
-                return View::create(null, Response::HTTP_CREATED);
+                $result = $this->productService->saveProduct($product);
+                if ($result)
+                {
+                    return View::create(null, Response::HTTP_CREATED);
+                }
             }   
             return View::create($form->getErrors(), Response::HTTP_BAD_REQUEST);
 
         } catch (Exception $ex)
         {
-            var_dump($ex);
             return View::create(null, Response::HTTP_BAD_REQUEST);
         }
     }

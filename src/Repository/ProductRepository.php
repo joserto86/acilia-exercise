@@ -15,14 +15,19 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
     
-    public function getAllProducts()
+    public function getAllProducts() :array
     {
         return $this->findAll();
     }
 
-    public function getFeaturedProducts()
+    public function getFeaturedProducts() :array
     {
         return $this->findBy(['featured' => true]);
+    }
+
+    public function getProductsByCategoryId($categoryId) :array
+    {
+        return $this->findBy(['category_id' => $categoryId]);
     }
 
     public function getProductById(int $id) :?Product

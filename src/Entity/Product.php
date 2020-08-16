@@ -3,68 +3,66 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Swagger\Annotations as SWG;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use App\Entity\Category;
 
 /**
 * @ORM\Entity
 * @ORM\Table(name="product")
 */
-class Product 
+class Product
 {
     /** 
+     * @var int
+     * 
      * @ORM\Id
      * @ORM\Column(type="integer") 
      * @ORM\GeneratedValue
      * 
-     * @var int
      */
     protected $id;
 
     /** 
+     * @var string
+     * 
      * @ORM\Column(type="string", length=255) 
-     * @SWG\Property(type="string")
-     * */
+     */
     protected $name;
 
     /** 
+     * @var Category
+     * 
      * @ORM\ManyToOne(targetEntity="App\Entity\Category")
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
-     *
-     * @SWG\Property(ref=@Model(type=Category::class))
      */
     protected $category;
 
-    /**
-     * @ORM\Column(type="integer", name="category_id")
-     */
-    protected $categoryId;
-
     /** 
+     * @var float
+     * 
      * @ORM\Column(type="float") 
-     * @SWG\Property(type="float")
      */
     protected $price;
 
     /** 
+     * @var string
+     * 
      * @ORM\Column(type="string", length=10) 
-     * @SWG\Property(type="string")
      */
     protected $currency;
 
     /**
+     * @var bool
+     * 
      * @ORM\Column(type="boolean")
-     * @SWG\Property(type="boolean")
      */
     protected $featured;
 
-    public function getId() :int
+    public function getId() :?int
     {
         return $this->id;
     }
 
-    public function setName($name) :Product
+    public function setName($name) :self
     {
         $this->name = $name;
         return $this;
@@ -75,7 +73,7 @@ class Product
         return $this->name;
     }
 
-    public function setCategory(Category $category) :Product
+    public function setCategory(Category $category) :self
     {
         $this->category = $category;
         return $this;
@@ -86,18 +84,7 @@ class Product
         return $this->category;        
     }
 
-    public function setCategoryId(int $categoryId) :Product
-    {
-        $this->categoryId = $categoryId;
-        return $this;
-    }
-
-    public function getCategoryId() :?int
-    {
-        return $this->categoryId;        
-    }
-
-    public function setPrice($price) :Product
+    public function setPrice($price) :self
     {
         $this->price = $price;
         return $this;
@@ -108,7 +95,7 @@ class Product
         return $this->price;
     }
 
-    public function setCurrency($currency) :Product
+    public function setCurrency($currency) :self
     {
         $this->currency = $currency;
         return $this;
@@ -119,7 +106,7 @@ class Product
         return $this->currency;
     }
 
-    public function setFeatured($featured) :Product
+    public function setFeatured($featured) :self
     {
         $this->featured = $featured;
         return $this;
@@ -128,5 +115,21 @@ class Product
     public function isFeatured() :?bool
     {
         return $this->featured;
+    }
+
+    public function serialize()
+    {
+        return serialize([
+            $this->id,
+            $this->name,
+            $this->price,
+            $this->currency,
+            $this->category != null ? $this->category->getName() : null
+        ]);
+    }
+
+    public function unserialize($serialized)
+    {
+        
     }
 }

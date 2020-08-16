@@ -2,9 +2,7 @@
 
 namespace App\Entity;
 
-use App\Repository\CategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Swagger\Annotations as SWG;
 
 /**
 * @ORM\Entity(repositoryClass="Acilia\Repository\CategoryRepository")
@@ -13,23 +11,26 @@ use Swagger\Annotations as SWG;
 class Category 
 {
     /** 
+     * @var int
+     * 
      * @ORM\Id
      * @ORM\Column(type="integer") 
      * @ORM\GeneratedValue
      * 
-     * @var int
      */
     protected $id;
 
     /**
+     * @var string
+     * 
      * @ORM\Column(type="string", length=255) 
-     * @SWG\Property(type="string")
      */
     protected $name;
 
     /**
+     * @var string
+     * 
      * @ORM\Column(type="string", length=255) 
-     * @SWG\Property(type="string")
      */
     protected $description;
 
@@ -38,7 +39,7 @@ class Category
         return $this->id;
     }
 
-    public function setName($name) :Category
+    public function setName($name) :self
     {
         $this->name = $name;
         return $this;
@@ -49,7 +50,7 @@ class Category
         return $this->name;
     }
 
-    public function setDescription($description) :Category
+    public function setDescription($description) :self
     {
         $this->description = $description;
         return $this;

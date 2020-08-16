@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Category;
 use App\Service\CategoryService;
-use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -24,7 +23,7 @@ class CategoryController extends AbstractFOSRestController
      * Retrieves a Category resource
      * @Rest\Get("/category/{id}")
      */
-    public function getCategoryAction(int $id)
+    public function getCategoryAction(int $id) :View
     {
         try {
             $category = $this->categoryService->getCategoryById($id);
@@ -43,7 +42,7 @@ class CategoryController extends AbstractFOSRestController
      * Create a new Category resource
      * @Rest\Post("/category")
      */
-    public function postCategoryAction(Request $request)
+    public function postCategoryAction(Request $request) :View
     {
         try {
             $category = new Category();
@@ -52,8 +51,11 @@ class CategoryController extends AbstractFOSRestController
             $form->submit($data);
             if ($form->isSubmitted() && $form->isValid())
             {
-                $this->categoryService->saveCategory($category);
-                return View::create(null, Response::HTTP_CREATED);
+                $result = $this->categoryService->saveCategory($category);
+                if ($result)
+                {
+                    return View::create(null, Response::HTTP_CREATED);
+                }
             }   
             return View::create($form->getErrors(), Response::HTTP_BAD_REQUEST);
 
@@ -67,7 +69,7 @@ class CategoryController extends AbstractFOSRestController
      * Replaces a Category resource
      * @Rest\Put("/category/{id}")
      */
-    public function putCategoryAction(int $id, Request $request)
+    public function putCategoryAction(int $id, Request $request) :View
     {
         try {
             $category = new Category();
@@ -76,8 +78,10 @@ class CategoryController extends AbstractFOSRestController
             $form->submit($data);
             if ($form->isSubmitted() && $form->isValid())
             {
-                $this->categoryService->updateCategory($id, $category);
-                return View::create(null, Response::HTTP_OK);
+                $result = $this->categoryService->updateCategory($id, $category);
+                if ($result) {
+                    return View::create(null, Response::HTTP_OK);
+                }
             }   
 
             return View::create($form->getErrors(), Response::HTTP_BAD_REQUEST);
@@ -91,7 +95,7 @@ class CategoryController extends AbstractFOSRestController
      * Retrieves an Article resource
      * @Rest\Delete("/category/{id}")
      */
-    public function deleteCategoryAction(int $id)
+    public function deleteCategoryAction(int $id) :View
     {
         try {
             $result = $this->categoryService->deleteCategory($id);
