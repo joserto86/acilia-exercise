@@ -36,6 +36,11 @@ class Product
      */
     protected $category;
 
+    /**
+     * @ORM\Column(type="integer", name="category_id")
+     */
+    protected $categoryId;
+
     /** 
      * @ORM\Column(type="float") 
      * @SWG\Property(type="float")
@@ -65,7 +70,7 @@ class Product
         return $this;
     }
 
-    public function getName() :string
+    public function getName() :?string
     {
         return $this->name;
     }
@@ -76,9 +81,20 @@ class Product
         return $this;
     }
 
-    public function getCategory() :Category
+    public function getCategory() :?Category
     {
         return $this->category;        
+    }
+
+    public function setCategoryId(int $categoryId) :Product
+    {
+        $this->categoryId = $categoryId;
+        return $this;
+    }
+
+    public function getCategoryId() :?int
+    {
+        return $this->categoryId;        
     }
 
     public function setPrice($price) :Product
@@ -87,7 +103,7 @@ class Product
         return $this;
     }
 
-    public function getPrice() :float
+    public function getPrice() :?float
     {
         return $this->price;
     }
@@ -98,7 +114,7 @@ class Product
         return $this;
     }
 
-    public function getCurrency() :string
+    public function getCurrency() :?string
     {
         return $this->currency;
     }
@@ -109,7 +125,7 @@ class Product
         return $this;
     }
 
-    public function isFeatured() :bool
+    public function isFeatured() :?bool
     {
         return $this->featured;
     }

@@ -3,52 +3,107 @@
 namespace App\Controller;
 
 use App\Entity\Category;
-use App\Entity\Product;
 use App\Service\CategoryService;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Swagger\Annotations as SWG;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\HttpFoundation\Response;
+use App\Form\CategoryType;
+use Exception;
+use FOS\RestBundle\View\View;
 
-class CategoryController extends AbstractController
-{
-    protected CategoryService $categoryService;
-    
+class CategoryController extends AbstractFOSRestController
+{ 
     public function __construct(CategoryService $categoryService)
     {
         $this->categoryService = $categoryService;
     }
     
     /**
-     * @Route("/category/{id}", methods={"GET"})
-     * @SWG\Response(
-     *     response=200,
-     *     description= "Returns category by Id",
-     *     @Model(type=Category::class)
-     * )
+     * Retrieves a Category resource
+     * @Rest\Get("/category/{id}")
      */
-    public function get($id)
+    public function getCategoryAction(int $id)
     {
-        return new JsonResponse($this->categoryService->getCategoryById($id));
+        try {
+            $category = $this->categoryService->getCategoryById($id);
+            if ($category != null) {
+                return View::create($category, Response::HTTP_OK);
+            }
+
+            return View::create(null, Response::HTTP_NOT_FOUND);
+
+        } catch(Exception $ex) {
+            return View::create(null, Response::HTTP_BAD_REQUEST);
+        }
     }
-    
+
     /**
-     * @Route("/category", methods={"POST"})
-     * @SWG\Response(
-     *     response=201,
-     *     description= "Returns featured products",
-     *     @Model(type=Category::class)
-     * )
-     * @SWG\Parameter(
-     *     name="category",
-     *     @Model(type=Category::class),
-     *     description="The field used to order rewards"
-     * )
+     * Create a new Category resource
+     * @Rest\Post("/category")
      */
-    public function new(Request $request)
+    public function postCategoryAction(Request $request)
     {
-        return new JsonResponse(true);
+        try {
+            $category = new Category();
+            $form = $this->createForm(CategoryType::class, $category);
+            $data = json_decode($request->getContent(),true);
+            $form->submit($data);
+            if ($form->isSubmitted() && $form->isValid())
+            {
+                $this->categoryService->saveCategory($category);
+                return View::create(null, Response::HTTP_CREATED);
+            }   
+            return View::create($form->getErrors(), Response::HTTP_BAD_REQUEST);
+
+        } catch (Exception $ex)
+        {
+            return View::create(null, Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Replaces a Category resource
+     * @Rest\Put("/category/{id}")
+     */
+    public function putCategoryAction(int $id, Request $request)
+    {
+        try {
+            $category = new Category();
+            $form = $this->createForm(CategoryType::class, $category);
+            $data = json_decode($request->getContent(),true);
+            $form->submit($data);
+            if ($form->isSubmitted() && $form->isValid())
+            {
+                $this->categoryService->updateCategory($id, $category);
+                return View::create(null, Response::HTTP_OK);
+            }   
+
+            return View::create($form->getErrors(), Response::HTTP_BAD_REQUEST);
+        } catch (Exception $ex)
+        {
+            return View::create(null, Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Retrieves an Article resource
+     * @Rest\Delete("/category/{id}")
+     */
+    public function deleteCategoryAction(int $id)
+    {
+        try {
+            $result = $this->categoryService->deleteCategory($id);
+            if ($result)
+            {
+                return View::create(null, Response::HTTP_NO_CONTENT);
+            }
+
+            return View::create(null, Response::HTTP_NOT_FOUND);
+
+        } catch (Exception $ex) {
+            return View::create(null, Response::HTTP_BAD_REQUEST);
+        }
     }
 }

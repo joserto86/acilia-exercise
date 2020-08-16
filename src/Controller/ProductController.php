@@ -2,39 +2,100 @@
 
 namespace App\Controller;
 
+use App\Entity\Category;
 use App\Entity\Product;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Swagger\Annotations as SWG;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\HttpFoundation\Response;
+use App\Form\CategoryType;
+use App\Form\ProductType;
+use App\Service\ProductService;
+use Exception;
+use FOS\RestBundle\View\View;
 
-class ProductController extends AbstractController
+class ProductController extends AbstractFOSRestController
 {
-    /**
-     * List the rewards of the specified user.
-     *
-     * This call takes into account all confirmed awards, but not pending or refused awards.
-     *
-     * 
-     
-     * 
-     * @Route("/api/product/featured", methods={"GET"})
-     * @SWG\Response(
-     *     response=200,
-     *     description="Returns the rewards of an user",
-     *     @SWG\Schema(
-     *         type="array",
-     *         @SWG\Items(ref=@Model(type=Product::class, groups={"full"}))
-     *     )
-     * )
-     
-
-     */
-    public function getFeaturedProducts()
+    public function __construct(ProductService $productService)
     {
-        return new JsonResponse([new Product(), new Product()]);
+        $this->productService = $productService;
+    }
+    
+    /**
+     * Retrieves all featured Products
+     * @Rest\Get("/product/featured")
+     */
+    public function getFeaturedProductsAction()
+    {
+        try {
+            $products = $this->productService->getFeaturedProducts();
+            return View::create($products, Response::HTTP_OK);
+
+        } catch(Exception $ex) {
+            return View::create(null, Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Retrieves a Product resource
+     * @Rest\Get("/product/{id}")
+     */
+    public function getProductAction(int $id)
+    {
+        try {
+            $product = $this->productService->getProductById($id);
+            if ($product != null) {
+                return View::create($product, Response::HTTP_OK);
+            }
+
+            return View::create(null, Response::HTTP_NOT_FOUND);
+
+        } catch(Exception $ex) {
+            return View::create(null, Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Retrieves all Products
+     * @Rest\Get("/product")
+     */
+    public function getProductsAction()
+    {
+        try {
+            $products = $this->productService->getProducts();
+            return View::create($products, Response::HTTP_OK);
+
+        } catch(Exception $ex) {
+            return View::create(null, Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Create a new Category resource
+     * @Rest\Post("/product")
+     */
+    public function postProductAction(Request $request)
+    {
+        try {
+            $product = new Product();
+            $form = $this->createForm(ProductType::class, $product);
+            $data = json_decode($request->getContent(),true);
+            $form->submit($data);
+            if ($form->isSubmitted() && $form->isValid())
+            {
+                $this->productService->saveProduct($product);
+                return View::create(null, Response::HTTP_CREATED);
+            }   
+            return View::create($form->getErrors(), Response::HTTP_BAD_REQUEST);
+
+        } catch (Exception $ex)
+        {
+            var_dump($ex);
+            return View::create(null, Response::HTTP_BAD_REQUEST);
+        }
     }
 }

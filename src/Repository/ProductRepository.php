@@ -2,9 +2,38 @@
 
 namespace App\Repository;
 
-use Doctrine\ORM\EntityRepository;
+use App\Entity\Product;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 
-class ProductRepository extends EntityRepository
+class ProductRepository extends ServiceEntityRepository
 {
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $em)
+    {
+        $this->em = $em;
+        parent::__construct($registry, Product::class);
+    }
+    
+    public function getAllProducts()
+    {
+        return $this->findAll();
+    }
 
+    public function getFeaturedProducts()
+    {
+        return $this->findBy(['featured' => true]);
+    }
+
+    public function getProductById(int $id) :?Product
+    {
+        return $this->find($id);
+    }
+
+    public function saveProduct(Product $product) :bool
+    {
+        $this->em->persist($product);
+        $this->em->flush();
+        return true;
+    }
 }
