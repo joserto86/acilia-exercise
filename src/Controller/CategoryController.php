@@ -104,9 +104,10 @@ class CategoryController extends AbstractFOSRestController
                 return View::create(null, Response::HTTP_NO_CONTENT);
             }
 
-            return View::create(null, Response::HTTP_NOT_FOUND);
+            return View::create(null, Response::HTTP_BAD_REQUEST);
 
         } catch (Exception $ex) {
+            var_dump($ex);
             return View::create(null, Response::HTTP_BAD_REQUEST);
         }
     }

@@ -27,7 +27,12 @@ class ProductRepository extends ServiceEntityRepository
 
     public function getProductsByCategoryId($categoryId) :array
     {
-        return $this->findBy(['category_id' => $categoryId]);
+        return $this->createQueryBuilder('p')
+            ->join('p.category', 'c')
+            ->where('c.id = :cat')
+            ->setParameter('cat', $categoryId)
+            ->getQuery()
+            ->getResult();
     }
 
     public function getProductById(int $id) :?Product

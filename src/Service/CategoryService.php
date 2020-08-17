@@ -41,7 +41,7 @@ class CategoryService
         $currentCategory = $this->getCategoryById($id);
         if ($currentCategory != null) {
             $productsOfCategory = $this->productRepository->getProductsByCategoryId($id);
-            if ($productsOfCategory != null) {
+            if (!empty($productsOfCategory)) {
                 return false;
             }
 
