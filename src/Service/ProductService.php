@@ -7,6 +7,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
 use App\Service\CurrencyService;
 use Exception;
+use App\Model\ProductResponseModel;
 
 class ProductService
 {
@@ -21,18 +22,30 @@ class ProductService
         $this->currencyService = $currencyService;
     }
 
-    public function getProductById(int $id) :?Product
+    public function getProductById(int $id) :?ProductResponseModel
     {
-        return $this->productRepository->getProductById($id);
+        return $this->getProductResponseFromProduct(
+            $this->productRepository->getProductById($id)
+        );
     }
 
     public function getProducts() :array
     {
-        return $this->productRepository->getAllProducts();
+        $result = [];
+        
+        $products = $this->productRepository->getAllProducts();
+        foreach($products as $product)
+        {
+            \array_push($result, $this->getProductResponseFromProduct($product));
+        }
+
+        return $result;
     }
 
-    public function getFeaturedProducts(string $currency) :array
+    public function getFeaturedProducts(?string $currency) :array
     {
+        $result = [];
+
         if ($currency != null && !$this->isCurrencyCorrect($currency))
         {
             throw new Exception();
@@ -47,11 +60,16 @@ class ProductService
                     $currency, 
                     $product->getPrice()
                 ));
+                $product->setCurrency($currency);
             }
         }
 
-        return $products;
+        foreach($products as $product)
+        {
+            \array_push($result, $this->getProductResponseFromProduct($product));
+        }
 
+        return $result;
     }
 
     public function saveProduct(Product $product) :bool
@@ -70,6 +88,20 @@ class ProductService
         return $this->productRepository->saveProduct($product);
     }
 
+    private function getProductResponseFromProduct(Product $product) :ProductResponseModel
+    {
+        return new ProductResponseModel(
+            $product->getId(),
+            $product->getName(),
+            $product->getPrice(),
+            $product->getCurrency(),
+            $product->getCategory() != null ? $product->getCategory()->getName() : null
+        );
+    }
+
+    /**
+     * Checks if product param is correct
+     */
     private function isValidProduct(Product $product) :bool
     {
         if (!$this->isCurrencyCorrect($product->getCurrency())) {
@@ -79,11 +111,17 @@ class ProductService
         return true;
     }
 
+    /**
+     * Determines if param currency is correct
+     */
     private function isCurrencyCorrect(string $currency) :bool
     {
         return \strcmp($currency, CurrencyService::USD) === 0 || \strcmp($currency, CurrencyService::EUR) === 0;
     }
 
+    /**
+     * Gets price in param currency
+     */
     private function getPriceByCurrency($currency, $currentPrize) :float
     {
         if (\strcmp($currency, CurrencyService::USD) === 0) {

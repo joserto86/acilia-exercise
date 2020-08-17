@@ -39,12 +39,12 @@ class ProductController extends AbstractFOSRestController
      * Retrieves a Product resource
      * @Rest\Get("/product/{id}")
      */
-    public function getProductAction(int $id) :View
+    public function getProductAction(int $id) :View 
     {
         try {
             $product = $this->productService->getProductById($id);
             if ($product != null) {
-                return View::create($product->serialize(), Response::HTTP_OK);
+                return View::create($product, Response::HTTP_OK);
             }
 
             return View::create(null, Response::HTTP_NOT_FOUND);

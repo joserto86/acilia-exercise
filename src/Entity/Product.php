@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Category;
 
 /**
-* @ORM\Entity
+* @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
 * @ORM\Table(name="product")
 */
 class Product
@@ -17,7 +17,6 @@ class Product
      * @ORM\Id
      * @ORM\Column(type="integer") 
      * @ORM\GeneratedValue
-     * 
      */
     protected $id;
 
@@ -35,6 +34,11 @@ class Product
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      */
     protected $category;
+
+    /**
+     * @var int
+     */
+    protected $categoryId;
 
     /** 
      * @var float
@@ -84,6 +88,17 @@ class Product
         return $this->category;        
     }
 
+    public function getCategoryId() :?int
+    {
+        return $this->categoryId;   
+    }
+
+    public function setCategoryId($categoryId) :self
+    {
+        $this->categoryId =$categoryId;
+        return $this;
+    }
+
     public function setPrice($price) :self
     {
         $this->price = $price;
@@ -115,21 +130,5 @@ class Product
     public function isFeatured() :?bool
     {
         return $this->featured;
-    }
-
-    public function serialize()
-    {
-        return serialize([
-            $this->id,
-            $this->name,
-            $this->price,
-            $this->currency,
-            $this->category != null ? $this->category->getName() : null
-        ]);
-    }
-
-    public function unserialize($serialized)
-    {
-        
     }
 }
